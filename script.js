@@ -1,10 +1,9 @@
-// --- IMPORT STATEMENTS (CDN CHANGED FOR RELIABILITY) ---
-import { createClient } from 'https://unpkg.com/@supabase/supabase-js@2';
-import { marked } from 'https://unpkg.com/marked@12';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { marked } from 'https://esm.sh/marked@12';
 
 // --- SUPABASE KEYS ---
-const SUPABASE_URL = 'https://uujccxawxkefiosujota.supabase.co'.trim();
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1amNjeGF3eGtlZmlvc3Vqb3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNTIyMTYsImV4cCI6MjA3NTkyODIxNn0.aBGv9XfA5jWdbyJN8v-bWFJI6uIojmCABIlTdbNFQow'.trim();
+const SUPABASE_URL = 'https://uujccxawxkefiosujota.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1amNjeGF3eGtlZmlvc3Vqb3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNTIyMTYsImV4cCI6MjA3NTkyODIxNn0.aBGv9XfA5jWdbyJN8v-bWFJI6uIojmCABIlTdbNFQow';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -173,7 +172,7 @@ async function initializeApp(session) {
     }
 }
 
-// --- Real-time Subscriptions ---
+// --- Real-time Subscriptions (ONLINE USERS FIX) ---
 function setupSubscriptions() {
     if (messagesSubscription) messagesSubscription.unsubscribe();
     messagesSubscription = supabase.channel('public:messages')
@@ -182,17 +181,31 @@ function setupSubscriptions() {
       }).subscribe();
 
     if (presenceChannel) presenceChannel.unsubscribe();
-    presenceChannel = supabase.channel('online_users');
+    // Use a unique channel name for presence
+    presenceChannel = supabase.channel('online-users', {
+        config: {
+            presence: {
+                key: currentUser.id,
+            },
+        },
+    });
+
     presenceChannel.on('presence', { event: 'sync' }, () => {
         const presenceState = presenceChannel.presenceState();
         updateOnlineUsers(presenceState);
     });
+
     presenceChannel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-            await presenceChannel.track({ user_id: currentUser.id, username: currentUser.username, avatar_url: currentUser.avatar_url });
+            await presenceChannel.track({
+                user_id: currentUser.id,
+                username: currentUser.username,
+                avatar_url: currentUser.avatar_url
+            });
         }
     });
 }
+
 
 // --- UI Rendering ---
 async function loadInitialMessages() {
