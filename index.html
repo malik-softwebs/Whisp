@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHISP</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Main Application Container -->
+    <div id="app-container">
+        
+        <!-- Authentication Screen -->
+        <div id="auth-screen" class="screen">
+            <header class="auth-header">
+                <h1 class="logo-font">WHISP</h1>
+                <p>A secure, real-time chat experience.</p>
+            </header>
+            
+            <!-- Login/Register Form -->
+            <form id="login-form" class="auth-form active">
+                <h2>Sign In or Sign Up</h2>
+                <p class="form-description">Enter your email to receive a secure one-time code.</p>
+                <div class="input-group">
+                    <input type="email" id="login-email" placeholder="Enter your email" required autocomplete="email">
+                </div>
+                <button type="submit">Send Code</button>
+            </form>
+
+            <!-- OTP Verification Form -->
+            <form id="otp-form" class="auth-form">
+                <h2>Verify Your Email</h2>
+                <p>Enter the 6-digit code sent to <strong id="otp-email-display">your email</strong>.</p>
+                <div class="input-group">
+                    <input type="text" id="otp-code" placeholder="_ _ _ _ _ _" maxlength="6" inputmode="numeric" required>
+                </div>
+                <button type="submit">Verify & Continue</button>
+                 <p class="form-switcher"><a href="#" id="back-to-login">Use a different email</a></p>
+            </form>
+
+            <!-- Profile Completion Form -->
+            <form id="complete-profile-form" class="auth-form">
+                <h2>Complete Your Profile</h2>
+                <p>Choose a unique username to join the chat.</p>
+                <div class="input-group">
+                    <input type="text" id="profile-username" placeholder="Choose a username" required minlength="3">
+                </div>
+                <button type="submit">Save and Enter Chat</button>
+            </form>
+            
+            <div id="auth-notification" class="notification"></div>
+        </div>
+        
+        <!-- Main Chat Screen -->
+        <div id="chat-screen" class="screen">
+            <header class="chat-header">
+                <div class="header-main">
+                    <h1 class="logo-font">WHISP</h1>
+                    <button id="settings-button" class="icon-button" aria-label="Settings">
+                        <i class='bx bx-cog'></i>
+                    </button>
+                </div>
+                <div id="online-users-container" class="online-users-container">
+                    <!-- Online user avatars will be injected here -->
+                </div>
+            </header>
+            <main id="messages-container">
+                <!-- SKELETON LOADER for initial load -->
+                <div id="skeleton-loader">
+                    <div class="skeleton-message received"><div class="skeleton-avatar"></div><div class="skeleton-content"><div class="skeleton-line"></div><div class="skeleton-line w-70"></div></div></div>
+                    <div class="skeleton-message sent"><div class="skeleton-content"><div class="skeleton-line w-50"></div><div class="skeleton-line"></div></div></div>
+                    <div class="skeleton-message received"><div class="skeleton-avatar"></div><div class="skeleton-content"><div class="skeleton-line w-40"></div></div></div>
+                    <div class="skeleton-message sent"><div class="skeleton-content"><div class="skeleton-line w-60"></div><div class="skeleton-line w-80"></div></div></div>
+                </div>
+                <!-- This inner container is crucial for the CSS flex-direction: column-reverse trick -->
+                <div class="messages-inner"></div>
+            </main>
+            <footer class="chat-footer">
+                <div id="recording-indicator" class="recording-indicator">
+                    <i class='bx bxs-microphone-alt'></i>
+                    <span>Recording...</span>
+                    <span id="recording-timer">0:00</span>
+                </div>
+                <form id="message-form">
+                    <label for="file-upload" class="icon-button upload-button">
+                        <i class='bx bx-paperclip'></i>
+                    </label>
+                    <input type="file" id="file-upload" hidden>
+                    <textarea id="message-input" placeholder="Type message here or /command" rows="1"></textarea>
+                    <button type="button" id="voice-record-button" class="icon-button voice-button" aria-label="Record Voice Message">
+                        <i class='bx bxs-microphone'></i>
+                    </button>
+                    <button type="submit" id="send-button" class="icon-button send-button" aria-label="Send Message">
+                        <i class='bx bx-up-arrow-alt'></i>
+                    </button>
+                </form>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ========= MODALS ========= -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-settings-modal-button" class="close-button">&times;</button>
+            <form id="settings-form">
+                <h2>Settings</h2>
+                <div class="avatar-upload-wrapper">
+                    <img id="settings-avatar-preview" src="" alt="Avatar Preview" class="avatar-preview">
+                    <label for="avatar-upload" class="avatar-upload-label">
+                        <i class='bx bx-camera'></i>
+                    </label>
+                    <input type="file" id="avatar-upload" accept="image/*" hidden>
+                </div>
+                <div class="input-group">
+                    <label for="settings-username">Username</label>
+                    <input type="text" id="settings-username" required minlength="3">
+                </div>
+                <button type="submit" class="save-button">Save Changes</button>
+            </form>
+            <hr>
+            <button id="logout-button" class="logout-button">Log Out</button>
+        </div>
+    </div>
+
+    <div id="delete-confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Delete Message</h2>
+            <p>Are you sure you want to permanently delete this message for everyone?</p>
+            <div class="modal-actions">
+                <button id="cancel-delete-button" class="button-secondary">Cancel</button>
+                <button id="confirm-delete-button" class="button-danger">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-view-modal" class="modal-overlay">
+        <div class="modal-content profile-card">
+            <button id="close-profile-modal-button" class="close-button">&times;</button>
+            <div class="profile-header">
+                <img id="profile-avatar" src="" alt="User Avatar">
+                <h3 id="profile-username"></h3>
+                <div id="profile-badges">
+                    <!-- Badges and checkmark will be injected here -->
+                </div>
+            </div>
+            <div class="profile-body">
+                <p>Member Since: <span id="profile-joined"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript file (as a module) -->
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
