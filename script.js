@@ -1,452 +1,474 @@
-// script.js (FINAL STABLE VERSION - FROM SCRATCH)
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { marked } from 'https://esm.sh/marked@4';
+import { marked } from 'https://esm.sh/marked@12';
 
-// --- SUPABASE CLIENT SETUP ---
-const SUPABASE_URL = 'https://zrtlacegsdlpykjkouzu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzIŠNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpydGxhY2Vnc2RscHlramtvdXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxOTExMTEsImV4cCI6MjA3NTc2NzExMX0.vhtS_zU5rymyyf0RN7nOp4ERl0Xbn96W3qKlKVyzIdA';
+// --- SUPABASE KEYS (CLEANED) ---
+const SUPABASE_URL = 'https://uujccxawxkefiosujota.supabase.co'.trim();
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1amNjeGF3eGtlZmlvc3Vqb3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNTIyMTYsImV4cCI6MjA3NTkyODIxNn0.aBGv9XfA5jWdbyJN8v-bWFJI6uIojmCABIlTdbNFQow'.trim();
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// --- DOM ELEMENT REFERENCES ---
-const screens = { auth: document.getElementById('auth-screen'), chat: document.getElementById('chat-screen') };
-const authForms = { login: document.getElementById('login-form'), otp: document.getElementById('otp-form'), profile: document.getElementById('complete-profile-form') };
-const formSwitchers = { backToLogin: document.getElementById('back-to-login') };
-const authNotification = document.getElementById('auth-notification');
-const messagesContainer = document.getElementById('messages-container');
-const skeletonLoader = document.getElementById('skeleton-loader');
-const messageForm = document.getElementById('message-form');
-const messageInput = document.getElementById('message-input');
-const fileUpload = document.getElementById('file-upload');
-const logoutButton = document.getElementById('logout-button');
-const settingsButton = document.getElementById('settings-button');
-const loginEmailInput = document.getElementById('login-email');
-const otpEmailDisplay = document.getElementById('otp-email-display');
-const onlineUsersContainer = document.getElementById('online-users-container');
-const settingsModal = document.getElementById('settings-modal');
-const deleteConfirmModal = document.getElementById('delete-confirm-modal');
-const profileViewModal = document.getElementById('profile-view-modal');
-const closeSettingsModalButton = document.getElementById('close-settings-modal-button');
-const closeProfileModalButton = document.getElementById('close-profile-modal-button');
-const cancelDeleteButton = document.getElementById('cancel-delete-button');
-const confirmDeleteButton = document.getElementById('confirm-delete-button');
-const settingsForm = document.getElementById('settings-form');
-const settingsAvatarPreview = document.getElementById('settings-avatar-preview');
-const avatarUpload = document.getElementById('avatar-upload');
-const settingsUsername = document.getElementById('settings-username');
-const profileAvatar = document.getElementById('profile-avatar');
-const profileUsername = document.getElementById('profile-username');
-const profileBadges = document.getElementById('profile-badges');
-const profileJoined = document.getElementById('profile-joined');
-const voiceRecordButton = document.getElementById('voice-record-button');
-const sendButton = document.getElementById('send-button');
-const recordingIndicator = document.getElementById('recording-indicator');
-const recordingTimerSpan = document.getElementById('recording-timer');
+// --- DOM Elements ---
+const dom = {
+    authContainer: document.getElementById('auth-container'),
+    emailFormContainer: document.getElementById('email-form-container'),
+    emailForm: document.getElementById('email-form'),
+    emailInput: document.getElementById('email-input'),
+    otpFormContainer: document.getElementById('otp-form-container'),
+    otpForm: document.getElementById('otp-form'),
+    otpEmailDisplay: document.getElementById('otp-email-display'),
+    otpInputs: document.querySelectorAll('.otp-digit'),
+    changeEmailButton: document.getElementById('change-email-button'),
+    profileFormContainer: document.getElementById('profile-form-container'),
+    profileForm: document.getElementById('profile-form'),
+    usernameInput: document.getElementById('username-input'),
+    usernameError: document.getElementById('username-error'),
+    chatContainer: document.getElementById('chat-container'),
+    onlineUsersBar: document.getElementById('online-users-bar'),
+    messagesContainer: document.getElementById('messages-container'),
+    messageForm: document.getElementById('message-form'),
+    messageInput: document.getElementById('message-input'),
+    sendButton: document.getElementById('send-button'),
+    voiceButton: document.getElementById('voice-button'),
+    attachmentButton: document.getElementById('attachment-button'),
+    fileUploadInput: document.getElementById('file-upload-input'),
+    attachmentPreviewContainer: document.getElementById('attachment-preview-container'),
+    modalBackdrop: document.getElementById('modal-backdrop'),
+    settingsButton: document.getElementById('settings-button'),
+    settingsModal: document.getElementById('settings-modal'),
+    userProfileModal: document.getElementById('user-profile-modal'),
+    closeModalButtons: document.querySelectorAll('.close-modal-button'),
+    settingsAvatarPreview: document.getElementById('settings-avatar-preview'),
+    avatarUploadInput: document.getElementById('avatar-upload-input'),
+    updateProfileForm: document.getElementById('update-profile-form'),
+    updateUsernameInput: document.getElementById('update-username-input'),
+    updateBioInput: document.getElementById('update-bio-input'),
+    updateLocationInput: document.getElementById('update-location-input'),
+    updateWebsiteInput: document.getElementById('update-website-input'),
+    updateDobInput: document.getElementById('update-dob-input'),
+    logoutButton: document.getElementById('logout-button'),
+    profileModalAvatar: document.getElementById('profile-modal-avatar'),
+    profileModalUsername: document.getElementById('profile-modal-username'),
+    profileModalVerified: document.getElementById('profile-modal-verified'),
+    profileModalBadges: document.getElementById('profile-modal-badges'),
+    profileModalBioContainer: document.getElementById('profile-modal-bio-container'),
+    profileModalBio: document.getElementById('profile-modal-bio'),
+    profileModalLocationContainer: document.getElementById('profile-modal-location-container'),
+    profileModalLocation: document.getElementById('profile-modal-location'),
+    profileModalWebsiteContainer: document.getElementById('profile-modal-website-container'),
+    profileModalWebsite: document.getElementById('profile-modal-website'),
+    profileModalDobContainer: document.getElementById('profile-modal-dob-container'),
+    profileModalDob: document.getElementById('profile-modal-dob'),
+    profileModalJoinDate: document.getElementById('profile-modal-joindate'),
+    confirmDeleteModal: document.getElementById('confirm-delete-modal'),
+    cancelDeleteButton: document.getElementById('cancel-delete-button'),
+    confirmDeleteButton: document.getElementById('confirm-delete-button'),
+    privacyToggles: document.querySelectorAll('#profile-privacy-settings input[type="checkbox"]'),
+};
 
-// --- APP STATE ---
+// --- App State ---
 let currentUser = null;
-let usersCache = {};
+let messagesSubscription = null;
 let presenceChannel = null;
-let messageChannel = null;
 let messageToDelete = null;
-let mediaRecorder, audioChunks = [], recordingStartTime, recordingTimerInterval, isRecording = false;
+let filesToUpload = [];
+let mediaRecorder, audioChunks = [];
 
-// --- UTILITY FUNCTIONS ---
-const showScreen = (screenName) => {
-    Object.values(screens).forEach(s => s.classList.remove('active'));
-    screens[screenName].classList.add('active');
-};
-const showAuthForm = (formName) => Object.values(authForms).forEach(f => f.classList.toggle('active', f.id === `${formName}-form`));
-const displayAuthNotification = (message, type = 'error') => {
-    authNotification.textContent = message;
-    authNotification.className = `notification ${type}`;
-    authNotification.style.display = 'block';
-};
-const formatTime = (dateString) => new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-const getAvatarUrl = (user) => user.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${user.username}`;
-const openModal = (modal) => modal.classList.add('active');
-const closeModal = (modal) => modal.classList.remove('active');
+// --- Utility & Modal Functions ---
+const show = (el) => el.classList.remove('hidden');
+const hide = (el) => el.classList.add('hidden');
+const escapeHTML = (str) => String(str || '').replace(/[&<>"']/g, (match) => ({'&': '&amp;','<': '&lt;','>': '&gt;','"': '&quot;',"'": '&#39;'}[match]));
+function showModal(modal) { show(dom.modalBackdrop); show(modal); }
+function hideAllModals() { hide(dom.modalBackdrop); document.querySelectorAll('.modal').forEach(hide); }
 
-messageInput.addEventListener('input', () => {
-    messageInput.style.height = 'auto';
-    messageInput.style.height = `${messageInput.scrollHeight}px`;
-    const hasText = messageInput.value.trim().length > 0;
-    sendButton.style.display = hasText ? 'flex' : 'none';
-    voiceRecordButton.style.display = hasText ? 'none' : 'flex';
-});
-
-// --- RENDER FUNCTIONS ---
-const renderOnlineUsers = (presences) => {
-    onlineUsersContainer.innerHTML = '';
-    const userIds = Object.keys(presences);
-    userIds.forEach(id => {
-        const user = usersCache[id];
-        if (user) {
-            const avatarImg = document.createElement('img');
-            avatarImg.src = getAvatarUrl(user);
-            avatarImg.className = 'online-user-avatar';
-            avatarImg.title = user.username;
-            avatarImg.addEventListener('click', () => viewUserProfile(user.id));
-            onlineUsersContainer.appendChild(avatarImg);
-        }
-    });
-};
-
-const renderMessages = async (messagesToRender = []) => {
-    const userIds = new Set(messagesToRender.map(msg => msg.sender_id));
-    const usersToFetch = [...userIds].filter(id => !usersCache[id]);
-
-    if (usersToFetch.length > 0) {
-        const { data: users, error } = await supabase.from('users').select('*').in('id', usersToFetch);
-        if (error) console.error('Error fetching user profiles:', error);
-        else users.forEach(user => usersCache[user.id] = user);
-    }
-
-    const fragment = document.createDocumentFragment();
-    for (const msg of messagesToRender) {
-        if (msg.deleted) continue;
-        const user = usersCache[msg.sender_id] || { username: 'Unknown', avatar_url: null };
-        const isSent = currentUser && msg.sender_id === currentUser.id;
-
-        const wrapper = document.createElement('div');
-        wrapper.className = `message-wrapper ${isSent ? 'sent' : 'received'}`;
-        wrapper.id = `message-${msg.id}`;
-        
-        if (isSent) wrapper.addEventListener('dblclick', () => promptDeleteMessage(msg.id));
-
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        if (!isSent) {
-            const avatar = document.createElement('img');
-            avatar.className = 'avatar';
-            avatar.src = getAvatarUrl(user);
-            avatar.addEventListener('click', () => viewUserProfile(user.id));
-            meta.appendChild(avatar);
-        }
-        meta.innerHTML += `<span class="username">${isSent ? 'You' : user.username}</span><span class="time">• ${formatTime(msg.timestamp)}</span>`;
-        wrapper.appendChild(meta);
-
-        const bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        bubble.innerHTML = getMessageContentHTML(msg);
-        wrapper.appendChild(bubble);
-        fragment.appendChild(wrapper);
-    }
-    
-    const innerContainer = messagesContainer.querySelector('.messages-inner');
-    innerContainer.prepend(fragment);
-};
-
-const getMessageContentHTML = (msg) => {
-    switch(msg.type) {
-        case 'text': return msg.content_html || marked.parse(msg.content);
-        case 'voice':
-            return `<div class="voice-player" data-audio-src="${msg.file_url}"><button class="voice-player-button"><i class='bx bx-play'></i></button><div class="voice-player-waveform">${Array(30).fill(0).map(() => `<div class="bar"></div>`).join('')}</div><span class="voice-player-duration">${(msg.file_duration || 0).toFixed(1)}s</span></div>`;
-        case 'file':
-             return `<div class="file-card"><div class="file-info"><i class='bx bxs-file-blank file-icon'></i><div><a href="${msg.file_url}" target="_blank" rel="noopener noreferrer">${msg.file_name}</a><p>${msg.file_type}</p></div></div></div>`;
-        case 'command': return renderCommand(msg.command_name, msg.command_data);
-        default: return '';
-    }
-};
-
-const renderCommand = (command, data) => {
-    if (!data) return '<p>Command data is missing.</p>';
-    switch(command) {
-        case 'wiki':
-            return `<div class="command-card"><div class="command-content"><h4><a href="${data.url}" target="_blank">${data.title}</a></h4><p>${data.extract}</p></div></div>`;
-        case 'weather':
-            return `<div class="command-card"><div class="command-content"><h4>Weather in ${data.location}</h4><p><strong>${data.temp_c} / ${data.temp_f}</strong> - ${data.condition}</p><p>Wind: ${data.wind_mph} | Humidity: ${data.humidity}</p></div></div>`;
-        case 'pexels':
-            return `<div class="command-card"><a href="${data.photographer_url}" target="_blank"><img src="${data.url}" alt="${data.alt}" class="pexels-img"></a><p class="pexels-by">Photo by ${data.photographer}</p></div>`;
-        default: return `<p>Unknown command output.</p>`;
-    }
-};
-
-// --- REALTIME ---
-const setupRealtimeChannels = () => {
-    if (presenceChannel) supabase.removeChannel(presenceChannel);
-    presenceChannel = supabase.channel('online-users', { config: { presence: { key: currentUser.id } } });
-    presenceChannel.on('presence', { event: 'sync' }, () => renderOnlineUsers(presenceChannel.presenceState())).subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString() });
-    });
-
-    if (messageChannel) return;
-    messageChannel = supabase.channel('public:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-        if (payload.eventType === 'INSERT') handleNewMessage(payload.new);
-        else if (payload.eventType === 'UPDATE' && payload.new.deleted) handleDeletedMessage(payload.new.id);
-    }).subscribe();
-};
-
-const cleanupRealtimeChannels = async () => {
-    if (presenceChannel) {
-        await presenceChannel.untrack();
-        supabase.removeChannel(presenceChannel);
-        presenceChannel = null;
-    }
-    if (messageChannel) {
-        supabase.removeChannel(messageChannel);
-        messageChannel = null;
-    }
-};
-
-const handleNewMessage = (newMessage) => {
-    renderMessages([newMessage]);
-    if (messagesContainer.scrollTop > -200) messagesContainer.scrollTop = messagesContainer.scrollHeight;
-};
-
-const handleDeletedMessage = (messageId) => {
-    const messageElement = document.getElementById(`message-${messageId}`);
-    if (messageElement) {
-        messageElement.style.transition = 'opacity 0.5s, transform 0.5s';
-        messageElement.style.opacity = '0';
-        messageElement.style.transform = 'scale(0.8)';
-        setTimeout(() => messageElement.remove(), 500);
-    }
-};
-
-// --- AUTHENTICATION & APP STATE MANAGEMENT ---
-const handleAuthStateChange = async (session) => {
-    if (session && currentUser?.id === session.user.id) {
-        return; // Avoid re-initializing if the user is already set
-    }
-    if (session) {
-        const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).single();
-        if (profile) {
-            if (profile.username.startsWith('user_')) {
-                skeletonLoader.style.display = 'none';
-                showScreen('auth'); 
-                showAuthForm('profile');
-            } else {
-                currentUser = profile;
-                await loadInitialChat();
-            }
-        }
-    } else {
-        currentUser = null;
-        await cleanupRealtimeChannels();
-        skeletonLoader.style.display = 'none';
-        showScreen('auth');
-        showAuthForm('login');
-    }
-};
-
-const loadInitialChat = async () => {
-    showScreen('chat');
-    skeletonLoader.style.display = 'flex';
-    
-    const { data, error } = await supabase.from('messages').select('*').order('timestamp', { ascending: false }).limit(50);
-    
-    skeletonLoader.style.display = 'none';
-    if (error) { console.error('Error fetching initial messages:', error); return; }
-    
-    const innerContainer = messagesContainer.querySelector('.messages-inner');
-    innerContainer.innerHTML = '';
-    
-    await renderMessages(data.reverse());
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    
-    setupRealtimeChannels();
-};
-
-authForms.login.addEventListener('submit', async (e) => {
+// --- Authentication & Profile Setup ---
+async function handleEmailLogin(e) {
     e.preventDefault();
-    const email = loginEmailInput.value;
+    const email = dom.emailInput.value.trim();
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) displayAuthNotification(error.message);
-    else { otpEmailDisplay.textContent = email; showAuthForm('otp'); }
-});
+    if (error) {
+        console.error('Error sending OTP:', error.message);
+        alert('Error sending OTP. Please try again.');
+    } else {
+        dom.otpEmailDisplay.textContent = email;
+        hide(dom.emailFormContainer);
+        show(dom.otpFormContainer);
+        dom.otpInputs[0].focus();
+    }
+}
 
-authForms.otp.addEventListener('submit', async (e) => {
+async function verifyOtp() {
+    let otp = '';
+    dom.otpInputs.forEach(input => otp += input.value);
+    if (otp.length !== 6) return;
+    const email = dom.emailInput.value.trim();
+    const { data, error } = await supabase.auth.verifyOtp({ email, token: otp, type: 'email' });
+    if (error) {
+        console.error('Error verifying OTP:', error.message);
+        alert('Invalid OTP. Please try again.');
+        dom.otpInputs.forEach(i => i.value = '');
+        dom.otpInputs[0].focus();
+    } else if (data.session) {
+        await initializeApp(data.session);
+    }
+}
+
+async function handleProfileUpdate(e) {
     e.preventDefault();
-    const email = loginEmailInput.value;
-    const token = document.getElementById('otp-code').value;
-    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-    if (error) displayAuthNotification(error.message);
-});
-
-authForms.profile.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('profile-username').value;
-    const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('users').update({ username }).eq('id', user.id);
-    if (error) displayAuthNotification(`Username update failed: ${error.message}.`);
-});
-
-logoutButton.addEventListener('click', async () => await supabase.auth.signOut());
-formSwitchers.backToLogin.addEventListener('click', (e) => { e.preventDefault(); showAuthForm('login'); });
-
-// --- PROFILE & SETTINGS ---
-const viewUserProfile = (userId) => {
-    const user = usersCache[userId];
-    if (!user) return;
-    profileAvatar.src = getAvatarUrl(user);
-    profileUsername.textContent = user.username;
-    profileJoined.textContent = new Date(user.created_at).toLocaleDateString();
-    profileBadges.innerHTML = '';
-    if (user.is_verified) profileBadges.innerHTML += `<i class='bx bxs-check-circle verified-tick' title="Verified"></i>`;
-    if (user.badge) {
-        const badgeEl = document.createElement('span');
-        badgeEl.className = `badge ${user.badge}`;
-        badgeEl.textContent = user.badge;
-        profileBadges.appendChild(badgeEl);
+    const newUsername = dom.usernameInput.value.trim();
+    if (!newUsername || newUsername.length < 3) return;
+    const { error } = await supabase.from('users').update({ username: newUsername }).eq('id', currentUser.id);
+    if (error) {
+        dom.usernameError.textContent = 'Username might be taken.';
+    } else {
+        currentUser.username = newUsername;
+        hide(dom.authContainer);
+        show(dom.chatContainer);
+        await loadInitialMessages();
+        setupSubscriptions();
     }
-    openModal(profileViewModal);
-};
+}
 
-avatarUpload.addEventListener('change', () => {
-    const file = avatarUpload.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => { settingsAvatarPreview.src = e.target.result; };
-        reader.readAsDataURL(file);
+async function handleLogout() {
+    if (presenceChannel) await presenceChannel.untrack();
+    await supabase.auth.signOut();
+    if (messagesSubscription) messagesSubscription.unsubscribe();
+    currentUser = null;
+    dom.messagesContainer.innerHTML = '';
+    dom.onlineUsersBar.innerHTML = '';
+    hide(dom.chatContainer);
+    hideAllModals();
+    show(dom.authContainer);
+    show(dom.emailFormContainer);
+    hide(dom.otpFormContainer);
+    hide(dom.profileFormContainer);
+    dom.emailInput.value = '';
+    dom.otpInputs.forEach(i => i.value = '');
+}
+
+async function initializeApp(session) {
+    if (!session) {
+        hide(dom.chatContainer);
+        show(dom.authContainer);
+        return;
     }
-});
-
-settingsForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const newUsername = settingsUsername.value.trim();
-    const avatarFile = avatarUpload.files[0];
-    if (newUsername === currentUser.username && !avatarFile) { closeModal(settingsModal); return; }
-    let newAvatarUrl = currentUser.avatar_url;
-    if (avatarFile) {
-        const filePath = `${currentUser.id}/${Date.now()}.${avatarFile.name.split('.').pop()}`;
-        const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
-        if (uploadError) { alert(`Avatar upload failed: ${uploadError.message}`); return; }
-        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-        newAvatarUrl = data.publicUrl;
+    const { data: userProfile, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+    if (error) {
+        console.error("Error fetching user profile:", error.message);
+        alert("Error loading your profile. This can happen if your profile wasn't created correctly. Please try logging in again.");
+        await handleLogout();
+        return;
     }
-    const { data: updatedUser, error: updateError } = await supabase
-        .from('users').update({ username: newUsername, avatar_url: newAvatarUrl }).eq('id', currentUser.id).select().single();
-    if (updateError) { alert(`Profile update failed: ${updateError.message}`); return; }
-    currentUser = updatedUser;
-    usersCache[currentUser.id] = updatedUser;
-    if (presenceChannel) renderOnlineUsers(presenceChannel.presenceState());
-    closeModal(settingsModal);
-});
-
-// --- MESSAGING ---
-const sendMessage = async (content) => {
-    const trimmedContent = content.trim();
-    if (!trimmedContent) return;
-    if (trimmedContent.startsWith('/')) { await handleCommand(trimmedContent); return; }
-    await supabase.from('messages').insert({ sender_id: currentUser.id, content: trimmedContent, content_html: marked.parse(trimmedContent), type: 'text' });
-};
-
-const handleCommand = async (fullCommand) => {
-    const parts = fullCommand.slice(1).split(/\s+/);
-    const command = parts[0]?.toLowerCase();
-    const args = parts.slice(1).join(' ');
-    if (!command) return;
-    try {
-        const { data, error } = await supabase.functions.invoke('command-handler', { body: { command, args } });
-        if (error || data.error) throw new Error(error?.message || data.error);
-        await supabase.from('messages').insert({ sender_id: currentUser.id, content: `/${command} ${args}`, type: 'command', command_name: command, command_data: data.data });
-    } catch (e) {
-        await supabase.from('messages').insert({ sender_id: currentUser.id, content: `Error: ${e.message}`, content_html: `<p><strong>Error:</strong> ${e.message}</p>`, type: 'text' });
+    currentUser = { ...session.user, ...userProfile };
+    if (currentUser.username && currentUser.username.startsWith('user_')) {
+        hide(dom.otpFormContainer);
+        hide(dom.emailFormContainer);
+        show(dom.profileFormContainer);
+        dom.usernameInput.focus();
+    } else {
+        hide(dom.authContainer);
+        show(dom.chatContainer);
+        await loadInitialMessages();
+        setupSubscriptions();
     }
-};
+}
 
-const handleFileUpload = async (file) => {
-    if (!file) return;
-    const filePath = `public/${currentUser.id}/${Date.now()}.${file.name.split('.').pop()}`;
-    const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, file);
-    if (uploadError) { alert(`File upload error: ${uploadError.message}`); return; }
-    const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
-    await supabase.from('messages').insert({ sender_id: currentUser.id, content: `File: ${file.name}`, type: 'file', file_url: publicUrl, file_type: file.type, file_name: file.name });
-};
+// --- Real-time Subscriptions ---
+function setupSubscriptions() {
+    if (messagesSubscription) messagesSubscription.unsubscribe();
+    messagesSubscription = supabase.channel('public:messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+          loadInitialMessages();
+      }).subscribe();
 
-messageForm.addEventListener('submit', (e) => { 
-    e.preventDefault(); 
-    sendMessage(messageInput.value); 
-    messageInput.value=''; messageInput.style.height='auto'; 
-    sendButton.style.display='none'; voiceRecordButton.style.display='flex'; 
-});
-fileUpload.addEventListener('change', (e) => { if (e.target.files[0]) handleFileUpload(e.target.files[0]); });
-
-// --- MESSAGE DELETION ---
-const promptDeleteMessage = (id) => { messageToDelete = id; openModal(deleteConfirmModal); };
-confirmDeleteButton.addEventListener('click', async () => {
-    if (!messageToDelete) return;
-    await supabase.from('messages').update({ deleted: true }).eq('id', messageToDelete);
-    closeModal(deleteConfirmModal);
-    messageToDelete = null;
-});
-
-// --- VOICE MESSAGING ---
-const startRecording = async () => {
-    if (isRecording) return;
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        isRecording = true;
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        mediaRecorder.start();
-        recordingIndicator.classList.add('active');
-        recordingStartTime = Date.now();
-        recordingTimerInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-            recordingTimerSpan.textContent = `${Math.floor(elapsed/60)}:${(elapsed%60).toString().padStart(2,'0')}`;
-        }, 1000);
-        mediaRecorder.addEventListener('dataavailable', e => audioChunks.push(e.data));
-        voiceRecordButton.innerHTML = "<i class='bx bxs-send'></i>";
-        voiceRecordButton.onclick = stopRecording;
-    } catch (err) { alert("Microphone access denied."); }
-};
-
-const stopRecording = async () => {
-    if (!isRecording) return;
-    mediaRecorder.stop();
-    isRecording = false;
-    clearInterval(recordingTimerInterval);
-    recordingIndicator.classList.remove('active');
-    const duration = (Date.now() - recordingStartTime) / 1000;
-    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-    const filePath = `${currentUser.id}/${Date.now()}.webm`;
-    const { error: uploadError } = await supabase.storage.from('voice_messages').upload(filePath, audioBlob);
-    if (uploadError) { alert('Voice upload failed.'); return; }
-    const { data: { publicUrl } } = supabase.storage.from('voice_messages').getPublicUrl(filePath);
-    await supabase.from('messages').insert({ sender_id: currentUser.id, content: `Voice Message`, type: 'voice', file_url: publicUrl, file_duration: duration, file_name: "Voice Message" });
-    voiceRecordButton.innerHTML = "<i class='bx bxs-microphone'></i>";
-    voiceRecordButton.onclick = startRecording;
-};
-
-messagesContainer.addEventListener('click', e => {
-    const player = e.target.closest('.voice-player');
-    if (player && player.dataset.audioSrc) {
-        const audio = new Audio(player.dataset.audioSrc);
-        const button = player.querySelector('.voice-player-button i');
-        const bars = player.querySelectorAll('.bar');
-        button.className = 'bx bx-pause';
-        audio.play();
-        audio.addEventListener('timeupdate', () => {
-            const progress = audio.currentTime / audio.duration;
-            bars.forEach((bar, i) => bar.classList.toggle('played', i < Math.floor(bars.length * progress)));
-        });
-        audio.onended = () => { button.className = 'bx bx-play'; bars.forEach(bar => bar.classList.remove('played')); };
-    }
-});
-
-// --- INITIALIZATION ---
-const init = () => {
-    // Wire up all static, non-auth-dependent event listeners first
-    settingsButton.addEventListener('click', () => {
-        if (currentUser) {
-             settingsUsername.value = currentUser.username;
-             settingsAvatarPreview.src = getAvatarUrl(currentUser);
-             openModal(settingsModal);
+    if (presenceChannel) presenceChannel.unsubscribe();
+    presenceChannel = supabase.channel('online_users');
+    presenceChannel.on('presence', { event: 'sync' }, () => {
+        const presenceState = presenceChannel.presenceState();
+        updateOnlineUsers(presenceState);
+    });
+    presenceChannel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+            await presenceChannel.track({ user_id: currentUser.id, username: currentUser.username, avatar_url: currentUser.avatar_url });
         }
     });
-    closeSettingsModalButton.addEventListener('click', () => closeModal(settingsModal));
-    closeProfileModalButton.addEventListener('click', () => closeModal(profileViewModal));
-    cancelDeleteButton.addEventListener('click', () => closeModal(deleteConfirmModal));
-    window.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) closeModal(e.target); });
+}
 
-    // This is the definitive, robust initialization flow.
-    // It relies on onAuthStateChange as the single source of truth.
-    // The added check for `currentUser` prevents the race condition on refresh.
-    supabase.auth.onAuthStateChange(async (_event, session) => {
-        await handleAuthStateChange(session);
+// --- UI Rendering ---
+async function loadInitialMessages() {
+    const { data, error } = await supabase.from('messages').select(`*, user:users(*)`).order('created_at', { ascending: true }).limit(100);
+    if (error) { console.error('Error loading messages:', error.message); return; }
+    dom.messagesContainer.innerHTML = '';
+    data.forEach(renderMessage);
+    setTimeout(() => { dom.messagesContainer.scrollTop = dom.messagesContainer.scrollHeight; }, 100);
+}
+
+function renderMessage(message) {
+    if (!message.user) return;
+    const isSelf = message.user.id === currentUser.id;
+    const container = document.createElement('div');
+    container.className = 'message-container';
+    
+    const time = new Date(message.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const defaultAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(message.user.username)}`;
+    const avatarUrl = message.user.avatar_url || defaultAvatar;
+    
+    container.innerHTML = `
+        <div class="message ${isSelf ? 'self' : 'other'}">
+            ${renderMessageContent(message)}
+        </div>
+        <div class="message-footer">
+            <img src="${avatarUrl}" alt="avatar" class="avatar" data-user-id="${message.user.id}">
+            <span>${isSelf ? 'You' : escapeHTML(message.user.username)}</span>
+            ${message.user.is_verified ? `<i class='bx bxs-badge-check verified-badge' title="Verified User"></i>` : ''}
+            <span>• ${time}</span>
+        </div>
+    `;
+    if (isSelf) {
+        container.querySelector('.message').addEventListener('dblclick', () => {
+            messageToDelete = message.id;
+            showModal(dom.confirmDeleteModal);
+        });
+    }
+    container.querySelector('.message-footer .avatar').addEventListener('click', () => showUserProfile(message.user.id));
+    dom.messagesContainer.appendChild(container);
+}
+
+function renderMessageContent(message) {
+    const content = message.content || {};
+    let html = '';
+    if (content.image_url) {
+        html += `<img src="${content.image_url}" alt="User upload" class="message-image">`;
+    }
+    if (content.text) {
+        html += `<div class="message-bubble">${marked.parse(escapeHTML(content.text))}</div>`;
+    }
+    if (message.type === 'voice_message' && content.voice_url) {
+        return `<div class="message-bubble voice-card" data-src="${content.voice_url}"><i class='bx bx-play'></i> Voice Message</div>`;
+    }
+    if (!html) return `<div class="message-bubble">Unsupported message format</div>`;
+    return html;
+}
+
+function updateOnlineUsers(presenceState) {
+    dom.onlineUsersBar.innerHTML = '';
+    const uniqueUsers = {};
+    Object.values(presenceState).forEach(userPresence => {
+        const user = userPresence[0];
+        if (user && user.user_id && !uniqueUsers[user.user_id]) {
+            uniqueUsers[user.user_id] = user;
+        }
     });
-};
+    Object.values(uniqueUsers).forEach(user => {
+        const defaultAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(user.username)}`;
+        const avatarUrl = user.avatar_url || defaultAvatar;
+        const userEl = document.createElement('img');
+        userEl.src = avatarUrl;
+        userEl.alt = escapeHTML(user.username);
+        userEl.className = 'avatar';
+        userEl.title = escapeHTML(user.username);
+        userEl.onclick = () => showUserProfile(user.user_id);
+        dom.onlineUsersBar.appendChild(userEl);
+    });
+}
 
-init();
+// --- User Actions ---
+async function handleMessageSubmit(e) {
+    e.preventDefault();
+    const text = dom.messageInput.value.trim();
+    const files = [...filesToUpload];
+    if (!text && files.length === 0) return;
+    filesToUpload = [];
+    dom.attachmentPreviewContainer.innerHTML = '';
+    dom.messageInput.value = '';
+    dom.messageInput.style.height = 'auto';
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+        const file = files[0];
+        const filePath = `${currentUser.id}/${Date.now()}_${file.name}`;
+        await supabase.storage.from('uploads').upload(filePath, file);
+        const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
+        await supabase.from('messages').insert({
+            user_id: currentUser.id,
+            type: 'text',
+            content: { text: text || null, image_url: publicUrl }
+        });
+    } else if (text) {
+        await supabase.from('messages').insert({ user_id: currentUser.id, type: 'text', content: { text: text } });
+    }
+}
+
+async function handleVoiceButtonClick() {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        dom.voiceButton.innerHTML = `<i class='bx bxs-microphone'></i>`;
+    } else {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioChunks = [];
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            mediaRecorder.start();
+            dom.voiceButton.innerHTML = `<i class='bx bxs-stop-circle' style="color: var(--danger);"></i>`;
+            mediaRecorder.addEventListener("dataavailable", event => {
+                audioChunks.push(event.data);
+            });
+            mediaRecorder.addEventListener("stop", async () => {
+                dom.voiceButton.innerHTML = `<i class='bx bxs-microphone'></i>`;
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const filePath = `${currentUser.id}/${Date.now()}.webm`;
+                await supabase.storage.from('voice_messages').upload(filePath, audioBlob);
+                const { data: { publicUrl } } = supabase.storage.from('voice_messages').getPublicUrl(filePath);
+                await supabase.from('messages').insert({ user_id: currentUser.id, type: 'voice_message', content: { voice_url: publicUrl } });
+                stream.getTracks().forEach(track => track.stop());
+            });
+        } catch (err) {
+            console.error("Microphone access denied:", err.message);
+            alert("Microphone access is required to send voice messages.");
+            dom.voiceButton.innerHTML = `<i class='bx bxs-microphone'></i>`;
+        }
+    }
+}
+
+// --- Profile Modals & Editing ---
+function openSettingsModal() {
+    const defaultAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(currentUser.username)}`;
+    dom.settingsAvatarPreview.src = currentUser.avatar_url || defaultAvatar;
+    dom.updateUsernameInput.value = currentUser.username;
+    dom.updateBioInput.value = currentUser.bio || '';
+    dom.updateLocationInput.value = currentUser.location || '';
+    dom.updateWebsiteInput.value = currentUser.website || '';
+    dom.updateDobInput.value = currentUser.dob || '';
+    const privacy = currentUser.profile_privacy || {};
+    dom.privacyToggles.forEach(toggle => {
+        const key = toggle.dataset.privacyKey;
+        toggle.checked = privacy[key] !== false;
+    });
+    showModal(dom.settingsModal);
+}
+
+async function handleProfileSettingsUpdate(e) {
+    e.preventDefault();
+    const privacySettings = {};
+    dom.privacyToggles.forEach(toggle => { privacySettings[toggle.dataset.privacyKey] = toggle.checked; });
+    let updates = {
+        username: dom.updateUsernameInput.value.trim(),
+        bio: dom.updateBioInput.value.trim(),
+        location: dom.updateLocationInput.value.trim(),
+        website: dom.updateWebsiteInput.value.trim(),
+        dob: dom.updateDobInput.value || null,
+        profile_privacy: privacySettings,
+    };
+    const file = dom.avatarUploadInput.files[0];
+    if (file) {
+        const filePath = `${currentUser.id}/${Date.now()}_${file.name}`;
+        await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        updates.avatar_url = `${publicUrl}?t=${new Date().getTime()}`;
+    }
+    const { data, error } = await supabase.from('users').update(updates).eq('id', currentUser.id).select().single();
+    if (error) { alert('Failed to update profile. Username might be taken.'); } 
+    else {
+        currentUser = { ...currentUser, ...data };
+        hideAllModals();
+        presenceChannel.track({ user_id: currentUser.id, username: currentUser.username, avatar_url: currentUser.avatar_url });
+    }
+}
+
+async function showUserProfile(userId) {
+    const { data } = await supabase.from('users').select('*').eq('id', userId).single();
+    if (!data) return;
+    const defaultAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.username)}`;
+    dom.profileModalAvatar.src = data.avatar_url || defaultAvatar;
+    dom.profileModalUsername.textContent = data.username;
+    data.is_verified ? show(dom.profileModalVerified) : hide(dom.profileModalVerified);
+    const badges = data.badges || [];
+    const accountAge = (new Date() - new Date(data.created_at)) / (1000 * 60 * 60 * 24);
+    if (accountAge < 7 && !badges.includes('newbie')) { badges.push('newbie'); }
+    dom.profileModalBadges.innerHTML = '';
+    badges.forEach(badge => {
+        const badgeEl = document.createElement('span');
+        badgeEl.className = `badge badge-${badge}`;
+        badgeEl.textContent = badge;
+        dom.profileModalBadges.appendChild(badgeEl);
+    });
+    const privacy = data.profile_privacy || {};
+    (data.bio && privacy.show_bio) ? (show(dom.profileModalBioContainer), dom.profileModalBio.textContent = data.bio) : hide(dom.profileModalBioContainer);
+    (data.location && privacy.show_location) ? (show(dom.profileModalLocationContainer), dom.profileModalLocation.textContent = data.location) : hide(dom.profileModalLocationContainer);
+    (data.website && privacy.show_website) ? (show(dom.profileModalWebsiteContainer), dom.profileModalWebsite.textContent = data.website.replace(/^(https?:\/\/)?(www\.)?/, ''), dom.profileModalWebsite.href = data.website) : hide(dom.profileModalWebsiteContainer);
+    (data.dob && privacy.show_dob) ? (show(dom.profileModalDobContainer), dom.profileModalDob.textContent = new Date(data.dob + 'T00:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric' })) : hide(dom.profileModalDobContainer);
+    dom.profileModalJoinDate.textContent = new Date(data.created_at).toLocaleDateString();
+    showModal(dom.userProfileModal);
+}
+
+async function confirmMessageDelete() {
+    if (!messageToDelete) return;
+    await supabase.from('messages').delete().eq('id', messageToDelete);
+    messageToDelete = null;
+    hideAllModals();
+}
+
+// --- Event Listeners Setup ---
+function setupEventListeners() {
+    dom.emailForm.addEventListener('submit', handleEmailLogin);
+    dom.otpForm.addEventListener('submit', (e) => { e.preventDefault(); verifyOtp(); });
+    dom.changeEmailButton.addEventListener('click', () => { hide(dom.otpFormContainer); show(dom.emailFormContainer); });
+    dom.otpInputs.forEach((input, index) => {
+        input.addEventListener('keyup', (e) => {
+            const isDigit = e.key >= 0 && e.key <= 9;
+            if (isDigit && index < 5 && input.value) { dom.otpInputs[index + 1].focus(); }
+            if (e.key === 'Backspace' && index > 0 && !input.value) { dom.otpInputs[index - 1].focus(); }
+        });
+        input.addEventListener('input', () => { const otp = Array.from(dom.otpInputs).map(i => i.value).join(''); if (otp.length === 6) { verifyOtp(); } });
+    });
+    dom.profileForm.addEventListener('submit', handleProfileUpdate);
+    dom.messageForm.addEventListener('submit', handleMessageSubmit);
+    dom.messageInput.addEventListener('input', () => { dom.messageInput.style.height = 'auto'; dom.messageInput.style.height = `${dom.messageInput.scrollHeight}px`; });
+    dom.voiceButton.addEventListener('click', handleVoiceButtonClick);
+    dom.attachmentButton.addEventListener('click', () => dom.fileUploadInput.click());
+    dom.fileUploadInput.addEventListener('change', (e) => {
+        filesToUpload = Array.from(e.target.files);
+        dom.attachmentPreviewContainer.innerHTML = '';
+        filesToUpload.forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const preview = document.createElement('div');
+                    preview.className = 'preview-item';
+                    preview.innerHTML = `<img src="${event.target.result}" alt="${file.name}"><button class="preview-remove" data-index="${index}">&times;</button>`;
+                    dom.attachmentPreviewContainer.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+    dom.attachmentPreviewContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('preview-remove')) {
+            const indexToRemove = parseInt(e.target.dataset.index, 10);
+            filesToUpload.splice(indexToRemove, 1);
+            dom.fileUploadInput.value = '';
+            e.target.parentElement.remove();
+        }
+    });
+    dom.messagesContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('voice-card')) {
+            const audio = new Audio(e.target.dataset.src);
+            audio.play();
+        }
+    });
+    dom.settingsButton.addEventListener('click', openSettingsModal);
+    dom.closeModalButtons.forEach(btn => btn.addEventListener('click', hideAllModals));
+    dom.updateProfileForm.addEventListener('submit', handleProfileSettingsUpdate);
+    dom.avatarUploadInput.addEventListener('change', () => { if (dom.avatarUploadInput.files[0]) dom.settingsAvatarPreview.src = URL.createObjectURL(dom.avatarUploadInput.files[0]); });
+    dom.logoutButton.addEventListener('click', handleLogout);
+    dom.confirmDeleteButton.addEventListener('click', confirmMessageDelete);
+    dom.cancelDeleteButton.addEventListener('click', hideAllModals);
+}
+
+// --- Main Execution ---
+document.addEventListener('DOMContentLoaded', async () => {
+    setupEventListeners();
+    const { data: { session } } = await supabase.auth.getSession();
+    await initializeApp(session);
+    supabase.auth.onAuthStateChange((_event, session) => {
+        if (_event === 'SIGNED_OUT') { handleLogout(); } 
+        else if (session && !currentUser) { initializeApp(session); }
+    });
+});
