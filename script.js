@@ -1,7 +1,8 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { marked } from 'https://esm.sh/marked@12';
+// --- IMPORT STATEMENTS (CDN CHANGED FOR RELIABILITY) ---
+import { createClient } from 'https://unpkg.com/@supabase/supabase-js@2';
+import { marked } from 'https://unpkg.com/marked@12';
 
-// --- SUPABASE KEYS (CLEANED) ---
+// --- SUPABASE KEYS ---
 const SUPABASE_URL = 'https://uujccxawxkefiosujota.supabase.co'.trim();
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1amNjeGF3eGtlZmlvc3Vqb3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNTIyMTYsImV4cCI6MjA3NTkyODIxNn0.aBGv9XfA5jWdbyJN8v-bWFJI6uIojmCABIlTdbNFQow'.trim();
 
