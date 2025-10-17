@@ -82,5 +82,4 @@ without permission to redistribute or make derivative works.
 
 For inquiries about licensing, contact: awais.112191@gmail.com
 
-!!! note
-    This is a styled note block.
+> Goodbye 👋🫂
